@@ -7,10 +7,4 @@ CREATE TABLE users (
         CHECK (position('@' IN email) > 1)
 );
 
-CREATE TABLE favorites (
-    user_id VARCHAR(25)
-        REFERENCES users ON DELETE CASCADE,
-    pokemon_id INTEGER,
-    PRIMARY KEY (user_id)
-);
 

@@ -86,29 +86,9 @@ class User {
     }
 
 
-    /** Find all users
-     * 
-     * Returns [{ username, first_name, last_name, email }, ...]
-     * 
-     */
-
-    static async findAll() {
-        const res = await db.query(
-            `SELECT username,
-                    first_name AS "firstName",
-                    last_name AS "lastName",
-                    email
-            FROM users
-            ORDER BY username`,
-        );
-
-        return res.rows;
-    }
-
-
     /** Given a username, return data about user
      * 
-     * Returns { username, first_name, last_name, battles, favorites }
+     * Returns { username, first_name, last_name, email }
      * 
      */
 
@@ -167,61 +147,6 @@ class User {
 
         delete user.password;
         return user;
-    }
-
-
-    /** Delete given user from database; returns undefined */
-
-    static async remove(username) {
-        let res = await db.query(
-            `DELETE
-            FROM users
-            WHERE username = $1
-            RETURNING username`,
-            [username],
-        );
-
-        const user = res.rows[0];
-
-        if (!user) throw new NotFoundError(`No user: ${username}`);
-    }
-
-
-    /** Favorite: update db, return undefined
-     * 
-     * username: the logged-in user
-     * battleId: battle_id
-     * 
-     */
-
-    static async favorited(username, pokemonId) {
-        const preCheck = await db.query(
-            `SELECT pokemon_id 
-            FROM favorites
-            WHERE pokemon_id = $1`,
-            [pokemonId]
-        );
-
-        const checkFav = preCheck.rows[0];
-
-        if (checkFav) throw new BadRequestError(`Already favorited`);
-
-        const preCheck2 = await db.query(
-            `SELECT username
-            FROM users
-            WHERE username = $1`,
-            [username]
-        )
-
-        const user = preCheck2.rows[0];
-
-        if (!user) throw new NotFoundError(`No username: ${username}`);
-
-        await db.query(
-            `INSERT INTO favorites (user_id, pokemon_id)
-            VALUES ($1, $2)`,
-            [username, pokemonId]
-        );
     }
 }
 
